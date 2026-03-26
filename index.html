@@ -1,1 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Lớp 8C</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --success: #2ecc71;
+            --bg: #f4f7f6;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- PHẦN 1: FORM ĐĂNG KÝ / ĐĂNG NHẬP --- */
+        .auth-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        .auth-container h2 { color: var(--primary); margin-bottom: 20px; }
+        
+        input {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: none; border: 1px solid var(--primary); color: var(--primary); margin-top: 5px; }
+        
+        /* --- PHẦN 2: NỘI DUNG CHÍNH (ẨN MẶC ĐỊNH) --- */
+        #main-content {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            background: var(--bg);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            padding: 40px;
+        }
+
+        /* Thiết kế ô học sinh mặc định */
+.student-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Hiệu ứng mượt hơn */
+    border: 1px solid #eee;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* HIỆU ỨNG KHI DI CHUỘT VÀO (HOVER) */
+.student-card:hover {
+    transform: translateY(-8px) scale(1.05); /* Bay lên và to ra một chút */
+    background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%); /* Đổi sang màu xanh Gradient */
+    color: white; /* Chữ chuyển sang trắng */
+    border-color: transparent;
+    box-shadow: 0 15px 30px rgba(33, 147, 176, 0.4); /* Đổ bóng xanh rực rỡ */
+}
+
+/* HIỆU ỨNG KHI ẤN VÀO (CLICK) */
+.student-card:active {
+    transform: scale(0.95); /* Thu nhỏ lại một chút tạo cảm giác như nút bấm thật */
+    background: linear-gradient(135deg, #2193b0 0%, #001f3f 100%); /* Màu đậm hơn khi nhấn */
+    transition: 0.1s;
+}
+
+/* Thêm một lớp phủ bóng loáng khi hover */
+.student-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.5s;
+}
+
+.student-card:hover::after {
+    left: 100%;
+}
+
+        /* --- PHẦN 3: TRANG CHI TIẾT --- */
+        #detail-page {
+            display: none;
+            padding: 50px;
+            text-align: center;
+        }
+
+        .profile-box {
+            display: flex;
+            background: white;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .profile-left { flex: 1; background: #eee; padding: 20px; }
+        .profile-right { flex: 1.5; padding: 40px; text-align: left; }
+        
+        #display-name { font-size: 3rem; color: var(--primary); margin: 0; }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="auth-container">
+        <h2>Đăng Nhập 8C</h2>
+        <input type="text" id="login-user" placeholder="Tên đăng nhập">
+        <input type="password" id="login-pass" placeholder="Mật khẩu">
+        <button class="btn-primary" onclick="handleLogin()">Vào Lớp</button>
+        <p style="font-size: 0.8rem;">Chưa có tài khoản? <a href="#" onclick="toggleAuth()">Đăng ký ngay</a></p>
+    </div>
+
+    <div id="register-screen" class="auth-container hidden">
+        <h2>Tạo Tài Khoản</h2>
+        <input type="text" id="reg-user" placeholder="Tạo tên đăng nhập">
+        <input type="password" id="reg-pass" placeholder="Tạo mật khẩu">
+        <button class="btn-primary" style="background: var(--success);" onclick="handleRegister()">Hoàn Tất Đăng Ký</button>
+        <button class="btn-outline" onclick="toggleAuth()">Quay lại Đăng nhập</button>
+    </div>
+
+    <div id="main-content">
+        <div style="text-align: right; padding: 20px;">
+            <button onclick="handleLogout()" style="width: auto; background: #e74c3c; color: white; padding: 5px 15px;">Đăng xuất</button>
+        </div>
+
+        <div id="list-section">
+            <h1 style="text-align: center;">THÀNH VIÊN LỚP 8C</h1>
+            <div class="grid-container">
+                <div class="student-card" onclick="openProfile('Trần Hoàng Quân', 'Cầu thủ tóc xoăn', 'Kỹ thuật cá nhân 5 sao.', 'https://i.postimg.cc/7LpQFR4w/image.png')">Trần Hoàng Quân</div>
+    
+                <div class="student-card" onclick="openProfile('Nguyễn Minh Thiện', 'Soái ca lớp 8C', 'Học ngu, đẹp trai.', 'https://i.postimg.cc/N0rdkxXf/image.png')">Nguyễn Minh Thiện</div>
+    
+                <div class="student-card" onclick="openProfile('Lê Thanh Gia Long', 'Web Developer', 'Người tạo ra trang web này.', 'https://via.placeholder.com/250?text=Long')">Lê Thanh Gia Long</div>
+    
+                <div class="student-card" onclick="openProfile('LÊ TRẦN ANH QUÂN', 'Hehe', 'ĐẸP TRAI', 'https://i.postimg.cc/qRJp3gt8/image.png')">Quân</div>
+            </div>
+        </div>
+
+        <div id="detail-page">
+            <button onclick="closeProfile()" style="width: auto; margin-bottom: 20px;">← Quay lại</button>
+            <div class="profile-box">
+                <div class="profile-left">
+                    <img id="avatar-img" src="" style="width:100%; border-radius:10px; object-fit: cover; min-height: 250px;">
+                </div>
+            <div class="profile-right">
+                <h1 id="display-name"></h1>
+                <p id="display-title" style="font-weight: bold; color: var(--primary);"></p>
+                <p id="display-desc"></p>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- XỬ LÝ TÀI KHOẢN ---
+        function toggleAuth() {
+            document.getElementById('login-screen').classList.toggle('hidden');
+            document.getElementById('register-screen').classList.toggle('hidden');
+        }
+
+        function handleRegister() {
+            const user = document.getElementById('reg-user').value;
+            const pass = document.getElementById('reg-pass').value;
+
+            if(user && pass) {
+                localStorage.setItem('user_8c', user);
+                localStorage.setItem('pass_8c', pass);
+                alert("Đăng ký thành công! Hãy đăng nhập.");
+                toggleAuth();
+            } else {
+                alert("Vui lòng điền đủ thông tin!");
+            }
+        }
+
+        function handleLogin() {
+            const user = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
+
+            const savedUser = localStorage.getItem('user_8c');
+            const savedPass = localStorage.getItem('pass_8c');
+
+            if(user === savedUser && pass === savedPass) {
+                document.body.style.display = "block"; 
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-content').style.display = "block";
+            } else {
+                alert("Sai tài khoản hoặc mật khẩu!");
+            }
+        }
+
+        function handleLogout() {
+            location.reload(); // Tải lại trang để về màn hình login
+        }
+
+        // --- XỬ LÝ PROFILE ---
+        function openProfile(name, title, desc, imgSrc) {
+            document.getElementById('list-section').style.display = "none";
+            document.getElementById('detail-page').style.display = "block";
+        
+        // Gán dữ liệu vào các thẻ tương ứng
+            document.getElementById('display-name').innerText = name;
+            document.getElementById('display-title').innerText = title;
+            document.getElementById('display-desc').innerText = desc;
+        
+        // Thay đổi ảnh dựa trên link được truyền vào
+        // Nếu không có link ảnh, sẽ dùng ảnh mặc định
+            document.getElementById('avatar-img').src = imgSrc || "https://via.placeholder.com/250?text=No+Image";
+        }
+
+        function closeProfile() {
+            document.getElementById('list-section').style.display = "block";
+            document.getElementById('detail-page').style.display = "none";
+        }
+
+    // Các hàm handleLogin, handleRegister giữ nguyên như cũ...
+    </script>
+</body>
+</html>
